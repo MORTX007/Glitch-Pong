@@ -10,7 +10,7 @@ public class OpponentController : MonoBehaviour
     public Transform ball;
     public Transform net;
 
-    public Vector2 optimalDefensePos;
+    public float optimalDefensePos;
     public float speed = 1f;
     public float jumpForce = 1f;
 
@@ -21,7 +21,7 @@ public class OpponentController : MonoBehaviour
         gameManager = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody2D>();
         
-        transform.position = optimalDefensePos;
+        transform.position = new Vector2 (optimalDefensePos, transform.position.y);
     }
 
     private void Update()
@@ -55,7 +55,7 @@ public class OpponentController : MonoBehaviour
 
             else
             {
-                transform.position = Vector2.MoveTowards(transform.position, optimalDefensePos, 5f * Time.fixedDeltaTime);
+                transform.position = Vector2.MoveTowards(transform.position, new Vector2 (optimalDefensePos, transform.position.y), 5f * Time.fixedDeltaTime);
             }
         }
     }
