@@ -4,19 +4,59 @@ using UnityEngine;
 
 public class OpponentController : MonoBehaviour
 {
+    private GameManager gameManager;
+    private Rigidbody2D rb;
+
     public Transform ball;
     public Transform net;
 
     public Vector2 optimalDefensePos;
-    public float speed;
+    public float speed = 1f;
+    public float jumpForce = 1f;
+
+    private bool grounded = true;
 
     private void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
+        rb = GetComponent<Rigidbody2D>();
+        
         transform.position = optimalDefensePos;
+    }
+
+    private void Update()
+    {
+        if (transform.position.y > -2.66)
+        {
+            grounded = false;
+        }
+        else
+        {
+            grounded = true;
+        }
     }
 
     private void FixedUpdate()
     {
-        
+
+        if (!gameManager.gameFinished)
+        {
+            if (ball.position.x > net.position.x + .05f)
+            {
+                Vector2 a = transform.position;
+                Vector2 b = new Vector2(ball.position.x + .7f, transform.position.y);
+                transform.position = Vector2.MoveTowards(a, b, speed * Time.fixedDeltaTime);
+
+                if (ball.position.y < .4f && Mathf.Abs(ball.position.x - transform.position.x)  < .9f && grounded)
+                {
+                    rb.AddForce(new Vector2(0f, jumpForce));
+                }
+            }
+
+            else
+            {
+                transform.position = Vector2.MoveTowards(transform.position, optimalDefensePos, 5f * Time.fixedDeltaTime);
+            }
+        }
     }
 }
