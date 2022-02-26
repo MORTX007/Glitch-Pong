@@ -16,6 +16,8 @@ public class OpponentController : MonoBehaviour
 
     private bool grounded = true;
 
+    public int score = 0;
+
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
@@ -26,13 +28,21 @@ public class OpponentController : MonoBehaviour
 
     private void Update()
     {
-        if (transform.position.y > -2.66)
+        if (!gameManager.gameFinished)
         {
-            grounded = false;
+            if (transform.position.y > -2.4)
+            {
+                grounded = false;
+            }
+            else
+            {
+                grounded = true;
+            }
         }
-        else
+
+        else if (gameManager.gameFinished && grounded)
         {
-            grounded = true;
+            Destroy(GetComponent<Rigidbody2D>());
         }
     }
 
@@ -47,7 +57,7 @@ public class OpponentController : MonoBehaviour
                 Vector2 b = new Vector2(ball.position.x + .7f, transform.position.y);
                 transform.position = Vector2.MoveTowards(a, b, speed * Time.fixedDeltaTime);
 
-                if (ball.position.y < .4f && Mathf.Abs(ball.position.x - transform.position.x)  < .9f && grounded)
+                if (ball.position.y < .4f && Mathf.Abs(ball.position.x - transform.position.x)  < .8f && grounded)
                 {
                     rb.AddForce(new Vector2(0f, jumpForce));
                 }

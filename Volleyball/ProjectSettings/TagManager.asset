@@ -38,6 +38,24 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2468020855
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Player
+    uniqueID: 1237092467
+    locked: 0
+  - name: Opponent
+    uniqueID: 2393950645
+    locked: 0
+  - name: Ball
+    uniqueID: 3437644473
+    locked: 0
+  - name: Lights
+    uniqueID: 3077125783
+    locked: 0
+  - name: Ball Indicator
+    uniqueID: 3157731365
     locked: 0
