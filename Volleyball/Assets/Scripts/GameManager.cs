@@ -14,21 +14,27 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI playerScore;
     public TextMeshProUGUI opponentScore;
 
-    public bool gameFinished = false;
+    public Timer timer;
+
+    public bool inGame = false;
 
     private void Start()
     {
         Physics2D.IgnoreLayerCollision(8, 9);
-        if (playerScore != null)
-        {
-            playerScore.text = player.score.ToString();
-            opponentScore.text = player.score.ToString();
-        }
+
+        playerScore.text = player.score.ToString();
+        opponentScore.text = opponent.score.ToString();
     }
 
     private void Update()
     {
-        if (ball.position.y < -2.5f && !gameFinished)
+        if (timer.currentTime < 0)
+        {
+            inGame = true;
+            timer.gameObject.SetActive(false);
+        }
+
+        if (ball.position.y < -2.5f && inGame)
         {
             if (ball.position.x < net.position.x)
             {
@@ -41,7 +47,7 @@ public class GameManager : MonoBehaviour
                 player.score += 1;
                 playerScore.text = player.score.ToString();
             }
-            gameFinished = true;
+            inGame = false;
         }
     }
 }

@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     private CharacterController2D controller;
     public GameManager gameManager;
 
+    public Transform ball;
+
     public float speed = 1f;
 
     private float horizontalMove = 0f;
@@ -22,7 +24,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!gameManager.gameFinished)
+        if (gameManager.inGame)
         {
             horizontalMove = Input.GetAxisRaw("Horizontal") * speed;
 
@@ -41,7 +43,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        else if (gameManager.gameFinished && controller.m_Grounded)
+        else if (!gameManager.inGame && ball.position.y < -2.5f && controller.m_Grounded)
         {
             Destroy(GetComponent<Rigidbody2D>());
         }
@@ -49,7 +51,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!gameManager.gameFinished)
+        if (gameManager.inGame)
         {
             controller.Move(horizontalMove * Time.fixedDeltaTime, slowWalk, jump);
             jump = false;

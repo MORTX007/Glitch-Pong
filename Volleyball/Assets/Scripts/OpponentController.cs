@@ -14,6 +14,8 @@ public class OpponentController : MonoBehaviour
     public float speed = 1f;
     public float jumpForce = 1f;
 
+    public float offset = 0.8f;
+
     private bool grounded = true;
 
     public int score = 0;
@@ -28,19 +30,20 @@ public class OpponentController : MonoBehaviour
 
     private void Update()
     {
-        if (!gameManager.gameFinished)
+        if (gameManager.inGame)
         {
             if (transform.position.y > -2.4)
             {
                 grounded = false;
             }
+
             else
             {
                 grounded = true;
             }
         }
 
-        else if (gameManager.gameFinished && grounded)
+        else if (!gameManager.inGame && ball.position.y < -2.5f && grounded)
         {
             Destroy(GetComponent<Rigidbody2D>());
         }
@@ -49,15 +52,15 @@ public class OpponentController : MonoBehaviour
     private void FixedUpdate()
     {
 
-        if (!gameManager.gameFinished)
+        if (gameManager.inGame)
         {
             if (ball.position.x > net.position.x + .05f)
             {
                 Vector2 a = transform.position;
-                Vector2 b = new Vector2(ball.position.x + .7f, transform.position.y);
+                Vector2 b = new Vector2(ball.position.x + offset, transform.position.y);
                 transform.position = Vector2.MoveTowards(a, b, speed * Time.fixedDeltaTime);
 
-                if (ball.position.y < .4f && Mathf.Abs(ball.position.x - transform.position.x)  < .8f && grounded)
+                if (ball.position.y < .4f && Mathf.Abs(ball.position.x - transform.position.x)  < offset + .2f && grounded)
                 {
                     rb.AddForce(new Vector2(0f, jumpForce));
                 }
