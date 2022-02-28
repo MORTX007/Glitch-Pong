@@ -7,6 +7,10 @@ TagManager:
   - Net
   - Player Score
   - Opponent Score
+  - Defeat Screen
+  - Win Screen
+  - Music Slider
+  - SFX Slider
   layers:
   - Default
   - TransparentFX

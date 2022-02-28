@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private CharacterController2D controller;
-    public GameManager gameManager;
+    private GameManager gameManager;
 
     public Transform ball;
 
@@ -15,16 +15,15 @@ public class PlayerController : MonoBehaviour
     private bool jump = false;
     private bool slowWalk = false;
 
-    public int score = 0;
-
     private void Start()
     {
         controller = GetComponent<CharacterController2D>();
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     private void Update()
     {
-        if (gameManager.inGame)
+        if (gameManager.inRound)
         {
             horizontalMove = Input.GetAxisRaw("Horizontal") * speed;
 
@@ -43,7 +42,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        else if (!gameManager.inGame && ball.position.y < -2.5f && controller.m_Grounded)
+        else if (!gameManager.inRound && ball.position.y < -2.5f && controller.m_Grounded)
         {
             Destroy(GetComponent<Rigidbody2D>());
         }
@@ -51,7 +50,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (gameManager.inGame)
+        if (gameManager.inRound && GetComponent<Rigidbody2D>() != null)
         {
             controller.Move(horizontalMove * Time.fixedDeltaTime, slowWalk, jump);
             jump = false;

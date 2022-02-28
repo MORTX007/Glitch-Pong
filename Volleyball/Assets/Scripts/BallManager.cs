@@ -4,16 +4,17 @@ using UnityEngine;
 
 public class BallManager : MonoBehaviour
 {
-    public GameManager gameManager;
+    private GameManager gameManager;
 
     private void Start()
     {
         GetComponent<Rigidbody2D>().isKinematic = true;
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     private void Update()
     {
-        if (gameManager.inGame)
+        if (gameManager.inRound)
         {
             GetComponent<Rigidbody2D>().isKinematic = false;
         }

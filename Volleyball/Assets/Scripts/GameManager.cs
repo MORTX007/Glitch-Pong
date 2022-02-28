@@ -1,53 +1,143 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public PlayerController player;
-    public OpponentController opponent;
+    private static GameManager instance;
 
-    public Transform ball;
-    public Transform net;
+    private Button audioButton;
+    private Button quitButton;
 
-    public TextMeshProUGUI playerScore;
-    public TextMeshProUGUI opponentScore;
+    private GameObject audioCanvas;
+    private Slider musicSlider;
+    private Slider sfxSlider;
 
-    public Timer timer;
+    private Button retry;
+    private Button menu;
 
-    public bool inGame = false;
+    private GameObject winScreen;
+    private GameObject defeatScreen;
 
-    private void Start()
+    public int playerScore;
+    public int opponentScore;
+
+    public bool inRound = false;
+    public bool inGame = true;
+
+    private void Awake()
     {
-        Physics2D.IgnoreLayerCollision(8, 9);
-
-        playerScore.text = player.score.ToString();
-        opponentScore.text = opponent.score.ToString();
+        if (instance != null)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
     }
 
     private void Update()
     {
-        if (timer.currentTime < 0)
+        if (SceneManager.GetActiveScene().buildIndex == 0)
         {
-            inGame = true;
-            timer.gameObject.SetActive(false);
-        }
-
-        if (ball.position.y < -2.5f && inGame)
-        {
-            if (ball.position.x < net.position.x)
+            if (audioButton == null || quitButton == null)
             {
-                opponent.score += 1;
-                opponentScore.text = opponent.score.ToString();
+                audioButton = GameObject.Find("Audio Button").GetComponent<Button>();
+                quitButton = GameObject.Find("Quit Button").GetComponent<Button>();
+
+                audioButton.onClick.AddListener(OpenAudioSettings);
+                quitButton.onClick.AddListener(Quit);
             }
 
-            else if (ball.position.x > net.position.x)
+            if (audioCanvas == null || musicSlider == null || sfxSlider == null)
             {
-                player.score += 1;
-                playerScore.text = player.score.ToString();
+                audioCanvas = GameObject.Find("Audio Menu");
+
+                musicSlider = GameObject.Find("Music Slider").GetComponent<Slider>();
+                sfxSlider = GameObject.Find("SFX Slider").GetComponent<Slider>();
+
+                audioCanvas.SetActive(false);
             }
-            inGame = false;
         }
+
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            if (winScreen == null || defeatScreen == null)
+            {
+                winScreen = GameObject.FindGameObjectWithTag("Win Screen");
+                defeatScreen = GameObject.FindGameObjectWithTag("Defeat Screen");
+
+                winScreen.SetActive(false);
+                defeatScreen.SetActive(false);
+            }
+
+            if (playerScore >= 3)
+            {
+                winScreen.SetActive(true);
+                inGame = false;
+            }
+
+            else if (opponentScore >= 3)
+            {
+                defeatScreen.SetActive(true);
+                inGame = false;
+            }
+
+            else
+            {
+                inGame = true;
+            }
+
+            if (inGame == false && (retry == null || menu == null))
+            {
+                retry = GameObject.Find("Retry Button").GetComponent<Button>();
+                menu = GameObject.Find("Menu Button").GetComponent<Button>();
+
+                retry.onClick.AddListener(Retry);
+                menu.onClick.AddListener(Menu);
+            }
+        }
+    }
+
+    public void Play()
+    {
+        SceneManager.LoadScene(1);
+    }
+
+    public void OpenAudioSettings()
+    {
+        if (audioCanvas.activeSelf == false)
+        {
+            audioCanvas.SetActive(true);
+        }
+
+        else if (audioCanvas.activeSelf == true)
+        {
+            audioCanvas.SetActive(false);
+        }
+    }
+
+    public void Retry()
+    {
+        playerScore = 0;
+        opponentScore = 0;
+        inRound = false;
+        inGame = true;
+
+        SceneManager.LoadScene(1);
+    }
+
+    public void Menu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
     }
 }

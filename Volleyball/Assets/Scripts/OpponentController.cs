@@ -18,8 +18,6 @@ public class OpponentController : MonoBehaviour
 
     private bool grounded = true;
 
-    public int score = 0;
-
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
@@ -30,7 +28,7 @@ public class OpponentController : MonoBehaviour
 
     private void Update()
     {
-        if (gameManager.inGame)
+        if (gameManager.inRound)
         {
             if (transform.position.y > -2.4)
             {
@@ -43,7 +41,7 @@ public class OpponentController : MonoBehaviour
             }
         }
 
-        else if (!gameManager.inGame && ball.position.y < -2.5f && grounded)
+        else if (!gameManager.inRound && ball.position.y < -2.5f && grounded)
         {
             Destroy(GetComponent<Rigidbody2D>());
         }
@@ -52,7 +50,7 @@ public class OpponentController : MonoBehaviour
     private void FixedUpdate()
     {
 
-        if (gameManager.inGame)
+        if (gameManager.inRound)
         {
             if (ball.position.x > net.position.x + .05f)
             {
