@@ -18,6 +18,8 @@ public class ScoreKeeper : MonoBehaviour
 
     public Timer timer;
 
+    private bool reloading = false;
+
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
@@ -30,7 +32,7 @@ public class ScoreKeeper : MonoBehaviour
 
     private void Update()
     {
-        if (timer.currentTime < 0 || !gameManager.inGame)
+        if ((timer.currentTime < 0 || !gameManager.inGame) && !reloading)
         {
             gameManager.inRound = true;
             timer.gameObject.SetActive(false);
@@ -50,11 +52,24 @@ public class ScoreKeeper : MonoBehaviour
                 playerScoreText.text = gameManager.playerScore.ToString();
             }
             gameManager.inRound = false;
+            reloading = true;
 
             if (gameManager.inGame)
             {
-                SceneManager.LoadScene(1);
+                StartCoroutine(Reload());
             }
         }
+    }
+
+    private IEnumerator Reload()
+    {
+        gameManager.fadeOutAnim.SetTrigger("Fade Out");
+        yield return new WaitForSeconds(2);
+
+        SceneManager.LoadScene(1);
+        gameManager.fadeOutAnim.SetTrigger("Fade In");
+        yield return new WaitForSeconds(1);
+
+        reloading = false;
     }
 }

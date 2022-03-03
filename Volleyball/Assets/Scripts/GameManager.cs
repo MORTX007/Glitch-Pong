@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEditor.Events;
 
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
 
+    private Button playButton;
     private Button audioButton;
     private Button quitButton;
 
     private GameObject audioCanvas;
     private Slider musicSlider;
     private Slider sfxSlider;
+
+    public AudioSource mySounds;
+    public AudioClip hoverSound;
+    public AudioClip clickSound;
+
+    public Animator fadeOutAnim;
 
     private Button retry;
     private Button menu;
@@ -24,6 +33,8 @@ public class GameManager : MonoBehaviour
     public int playerScore;
     public int opponentScore;
 
+    private bool fadedOut = false;
+
     public bool inRound = false;
     public bool inGame = true;
 
@@ -33,6 +44,7 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
         else
         {
             instance = this;
@@ -44,13 +56,19 @@ public class GameManager : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().buildIndex == 0)
         {
-            if (audioButton == null || quitButton == null)
+            if (playButton == null || audioButton == null || quitButton == null)
             {
+                playButton = GameObject.Find("Play Button").GetComponent<Button>();
                 audioButton = GameObject.Find("Audio Button").GetComponent<Button>();
                 quitButton = GameObject.Find("Quit Button").GetComponent<Button>();
 
+                playButton.onClick.AddListener(PlayWrapper);
                 audioButton.onClick.AddListener(OpenAudioSettings);
-                quitButton.onClick.AddListener(Quit);
+                quitButton.onClick.AddListener(QuitWrapper);
+
+                UpdateEventTrigger(playButton);
+                UpdateEventTrigger(audioButton);
+                UpdateEventTrigger(quitButton);
             }
 
             if (audioCanvas == null || musicSlider == null || sfxSlider == null)
@@ -77,14 +95,12 @@ public class GameManager : MonoBehaviour
 
             if (playerScore >= 3)
             {
-                winScreen.SetActive(true);
-                inGame = false;
+                StartCoroutine(ActivateWinScreen());
             }
 
             else if (opponentScore >= 3)
             {
-                defeatScreen.SetActive(true);
-                inGame = false;
+                StartCoroutine(ActivateDefeatScreen());
             }
 
             else
@@ -92,20 +108,37 @@ public class GameManager : MonoBehaviour
                 inGame = true;
             }
 
-            if (inGame == false && (retry == null || menu == null))
+            if (inGame == false && (retry == null || menu == null) && fadedOut)
             {
                 retry = GameObject.Find("Retry Button").GetComponent<Button>();
                 menu = GameObject.Find("Menu Button").GetComponent<Button>();
 
-                retry.onClick.AddListener(Retry);
-                menu.onClick.AddListener(Menu);
+                retry.onClick.AddListener(RetryWrapper);
+                menu.onClick.AddListener(MenuWrapper);
+
+                UpdateEventTrigger(retry);
+                UpdateEventTrigger(menu);
             }
+        }
+
+        if (fadeOutAnim == null)
+        {
+            fadeOutAnim = GameObject.Find("Fade Out").GetComponent<Animator>();
         }
     }
 
-    public void Play()
+    public void PlayWrapper()
     {
+        StartCoroutine(Play());
+    }
+
+    public IEnumerator Play()
+    {
+        fadeOutAnim.SetTrigger("Fade Out");
+        yield return new WaitForSeconds(2);
+
         SceneManager.LoadScene(1);
+        fadeOutAnim.SetTrigger("Fade In");
     }
 
     public void OpenAudioSettings()
@@ -121,23 +154,101 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Retry()
+    private IEnumerator ActivateWinScreen()
     {
+        inGame = false;
+        yield return new WaitForSeconds(2);
+
+        winScreen.SetActive(true);
+        fadedOut = true;
+    }
+
+    private IEnumerator ActivateDefeatScreen()
+    {
+        inGame = false;
+        yield return new WaitForSeconds(2);
+
+        defeatScreen.SetActive(true);
+        fadedOut = true;
+    }
+
+    public void RetryWrapper()
+    {
+        StartCoroutine(Retry());
+    }
+
+    public IEnumerator Retry()
+    {
+        fadeOutAnim.SetTrigger("Fade Out");
+
         playerScore = 0;
         opponentScore = 0;
         inRound = false;
         inGame = true;
 
+        yield return new WaitForSeconds(2);
+
         SceneManager.LoadScene(1);
+        fadeOutAnim.SetTrigger("Fade In");
+        fadedOut = false;
     }
 
-    public void Menu()
+    public void MenuWrapper()
     {
+        StartCoroutine(Menu());
+    }
+
+    public IEnumerator Menu()
+    {
+        fadeOutAnim.SetTrigger("Fade Out");
+
+        playerScore = 0;
+        opponentScore = 0;
+        inRound = false;
+        inGame = true;
+
+        yield return new WaitForSeconds(2);
+
         SceneManager.LoadScene(0);
+        fadeOutAnim.SetTrigger("Fade In");
+        fadedOut = false;
     }
 
-    public void Quit()
+    private void UpdateEventTrigger(Button button)
     {
+        EventTrigger trigger = button.GetComponent<EventTrigger>();
+        EventTrigger.Entry hoverEntry = new EventTrigger.Entry();
+
+        hoverEntry.eventID = EventTriggerType.PointerEnter;
+        hoverEntry.callback.AddListener((callback) => { HoverSound(); });
+        trigger.triggers.Add(hoverEntry);
+
+        EventTrigger.Entry clickEntry = new EventTrigger.Entry();
+
+        clickEntry.eventID = EventTriggerType.PointerClick;
+        clickEntry.callback.AddListener((callback) => { ClickSound(); });
+        trigger.triggers.Add(clickEntry);
+    }
+
+    public void HoverSound()
+    {
+        mySounds.PlayOneShot(hoverSound);
+    }
+
+    public void ClickSound()
+    {
+        mySounds.PlayOneShot(clickSound);
+    }
+
+    public void QuitWrapper()
+    {
+        StartCoroutine(Quit());
+    }
+
+    public IEnumerator Quit()
+    {
+        yield return new WaitForSeconds(2);
+
         Application.Quit();
     }
 }

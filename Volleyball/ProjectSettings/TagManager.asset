@@ -66,3 +66,6 @@ TagManager:
   - name: Ball Indicator
     uniqueID: 3157731365
     locked: 0
+  - name: Fade Out
+    uniqueID: 1621413521
+    locked: 0
