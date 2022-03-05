@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using UnityEditor.Events;
 
 public class GameManager : MonoBehaviour
 {
@@ -52,6 +51,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (!PlayerPrefs.HasKey("music volume"))
+        {
+            PlayerPrefs.SetFloat("music volume", 0.5f);
+        }
+
+        if (!PlayerPrefs.HasKey("sfx volume"))
+        {
+            PlayerPrefs.SetFloat("sfx volume", 0.5f);
+        }
+    }
+
     private void Update()
     {
         if (SceneManager.GetActiveScene().buildIndex == 0)
@@ -77,6 +89,12 @@ public class GameManager : MonoBehaviour
 
                 musicSlider = GameObject.Find("Music Slider").GetComponent<Slider>();
                 sfxSlider = GameObject.Find("SFX Slider").GetComponent<Slider>();
+
+                musicSlider.value = PlayerPrefs.GetFloat("music volume");
+                sfxSlider.value = PlayerPrefs.GetFloat("sfx volume");
+
+                musicSlider.onValueChanged.AddListener(delegate { UpdateMusicSetting(); });
+                sfxSlider.onValueChanged.AddListener(delegate { UpdateSfxSetting(); });
 
                 audioCanvas.SetActive(false);
             }
@@ -152,6 +170,16 @@ public class GameManager : MonoBehaviour
         {
             audioCanvas.SetActive(false);
         }
+    }
+
+    private void UpdateMusicSetting()
+    {
+        PlayerPrefs.SetFloat("music volume", musicSlider.value);
+    }
+
+    private void UpdateSfxSetting()
+    {
+        PlayerPrefs.SetFloat("sfx volume", sfxSlider.value);
     }
 
     private IEnumerator ActivateWinScreen()
@@ -232,12 +260,12 @@ public class GameManager : MonoBehaviour
 
     public void HoverSound()
     {
-        mySounds.PlayOneShot(hoverSound);
+        mySounds.PlayOneShot(hoverSound, PlayerPrefs.GetFloat("sfx volume"));
     }
 
     public void ClickSound()
     {
-        mySounds.PlayOneShot(clickSound);
+        mySounds.PlayOneShot(clickSound, PlayerPrefs.GetFloat("sfx volume"));
     }
 
     public void QuitWrapper()
